@@ -1,23 +1,32 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+**nb-configuration.xml
+nbactions.xml
+**.classpath
+**.DS_Store
+**.project
+**nohup.out
+**.factoryPath
+**.settings
+**/target/
+**/bin/
+**/build/
+**/.mvn*
+**.next/*
+**/node_modules/
+**/node/*
+**/npm/cache/*
+**/js/dist/*
+**/javascript/dist/*
+**/demo/dist/*
+**/react-rollup-app/dist/*
+**/react-rollup-app/packages/*/dist/*
+**/package-lock.json
+liferay-npm-bundler-report.html
+*.log
+**/*.swp
+**/js/dist
+**/js/*.tgz
+**/demo/dist
+**/.vscode
+**.idea
+**/*.iml
+**/.factorypath
