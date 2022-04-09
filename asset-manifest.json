@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/zradio/static/css/main.60c9f2f3.chunk.css",
-    "main.js": "/zradio/static/js/main.6a5953dd.chunk.js",
-    "main.js.map": "/zradio/static/js/main.6a5953dd.chunk.js.map",
+    "main.js": "/zradio/static/js/main.c0094cec.chunk.js",
+    "main.js.map": "/zradio/static/js/main.c0094cec.chunk.js.map",
     "runtime-main.js": "/zradio/static/js/runtime-main.4d56f313.js",
     "runtime-main.js.map": "/zradio/static/js/runtime-main.4d56f313.js.map",
     "static/js/2.779b5579.chunk.js": "/zradio/static/js/2.779b5579.chunk.js",
@@ -20,6 +20,6 @@
     "static/js/runtime-main.4d56f313.js",
     "static/js/2.779b5579.chunk.js",
     "static/css/main.60c9f2f3.chunk.css",
-    "static/js/main.6a5953dd.chunk.js"
+    "static/js/main.c0094cec.chunk.js"
   ]
 }
