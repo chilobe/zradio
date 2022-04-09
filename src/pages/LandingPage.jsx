@@ -69,7 +69,20 @@ const LandingPage = () => {
                                 <span className="visually-hidden">Loading...</span>
                             </Spinner> :
                                 <Button className="playback-buttons"
-                                    onClick={() => handlePlay(radioStation)}>
+                                    onClick={
+
+                                        () => {
+                                            if (radio) {
+                                                if (radio.isPlaying()) {
+                                                    radio.pause();
+                                                    setPlaying(false);
+                                                }
+                                                else {
+                                                    handlePlay(radioStation);
+                                                }
+                                            }
+                                        }
+                                    }>
                                     {playing && <MdOutlinePause />}
                                     {!playing && <MdOutlinePlayArrow />}
                                 </Button>
