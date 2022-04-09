@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/radio/static/css/main.60c9f2f3.chunk.css",
+    "main.js": "/radio/static/js/main.f9c55934.chunk.js",
+    "main.js.map": "/radio/static/js/main.f9c55934.chunk.js.map",
+    "runtime-main.js": "/radio/static/js/runtime-main.f9ea3f70.js",
+    "runtime-main.js.map": "/radio/static/js/runtime-main.f9ea3f70.js.map",
+    "static/js/2.779b5579.chunk.js": "/radio/static/js/2.779b5579.chunk.js",
+    "static/js/2.779b5579.chunk.js.map": "/radio/static/js/2.779b5579.chunk.js.map",
+    "static/js/3.79e225a4.chunk.js": "/radio/static/js/3.79e225a4.chunk.js",
+    "static/js/3.79e225a4.chunk.js.map": "/radio/static/js/3.79e225a4.chunk.js.map",
+    "index.html": "/radio/index.html",
+    "service-worker.js": "/radio/service-worker.js",
+    "service-worker.js.map": "/radio/service-worker.js.map",
+    "static/css/main.60c9f2f3.chunk.css.map": "/radio/static/css/main.60c9f2f3.chunk.css.map",
+    "static/js/2.779b5579.chunk.js.LICENSE.txt": "/radio/static/js/2.779b5579.chunk.js.LICENSE.txt",
+    "static/media/hot_fm.c7cfc937.jpg": "/radio/static/media/hot_fm.c7cfc937.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f9ea3f70.js",
+    "static/js/2.779b5579.chunk.js",
+    "static/css/main.60c9f2f3.chunk.css",
+    "static/js/main.f9c55934.chunk.js"
+  ]
+}
