@@ -1,0 +1,77 @@
+@import "~bootstrap/scss/bootstrap";
+
+@media screen and (max-width: 500px)
+{
+    .station-icon
+    {
+        border: 1px solid red;
+        width: 100%;
+        margin-bottom: 10%;
+    }
+
+    .cwmx
+    {        
+        background-color:red; 
+        border:red;
+        border-style: solid; 
+        position:fixed; 
+        top: 0%;
+        left: 0;
+        right: 0;  
+        font-size: 10vw;
+    }
+
+    .playback-buttons
+    {
+        font-size: 10vw;
+    }
+
+    .foo
+    {        
+        display:flex;
+        justify-content: space-between;
+        background-color:red; 
+        border:red;
+        border-style: solid; 
+        position:fixed; 
+        bottom: 1%;
+        left: 0;
+        right: 0;  
+    }
+
+    .conta{
+        //position:relative;
+        //background-color: red;
+    }
+
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+    .bar
+    {
+        height: 100%;
+        border: yellow;
+        border-style: solid;
+    }
+
+    .contentWrapper
+    {
+        width: 2000px;
+    }
+
+    .contentCell
+    {
+        width:400px;
+        overflow-x:auto;
+    }
+
+    .content
+    {
+        width:400px;
+        float:left;
+    }
+}
