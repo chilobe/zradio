@@ -38,7 +38,7 @@ const LandingPage = () => {
             </div>
             <div className="media-content">
                 {RadioStations.map((rs, index) => {
-                    return <Card key={index} className={(rs.id === radioStation.id) ? "current-station" : ""}
+                    return <Card key={index} className={(radioStation && rs.id === radioStation.id) ? "current-station" : ""}
                         onClick={() => handlePlay(rs)}
                     >
                         <Card.Header className="text-center"> <span>{rs.name}</span></Card.Header>
