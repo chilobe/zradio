@@ -1,5 +1,5 @@
-import HotFmIcon from '../img/hot_fm.jpg';
-import iWaveFmIcon from '../img/iwave_fm.jpg';
+import HotFmIcon from '../img/hot_fm.png';
+import iWaveFmIcon from '../img/iwave_fm.png';
 import phoenixFmIcon from '../img/radio_phoenix.png';
 import sunFmIcon from '../img/sun_fm.jpg';
 import breezeFmIcon from '../img/breeze_fm.jpg';

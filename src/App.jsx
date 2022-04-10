@@ -3,10 +3,7 @@ import LandingPage from './pages/LandingPage';
 import './styles/main.scss';
 
 function App() {
-  return <div className="parent">
-    <LandingPage />
-  </div>
-
+  return <LandingPage />
 }
 
 export default App;
