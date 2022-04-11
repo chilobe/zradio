@@ -2,7 +2,7 @@ import { Spinner, Button, Card } from 'react-bootstrap';
 import { Fragment, useEffect, useState } from 'react';
 import RadioStations from '../data/RadioStations';
 import Radio from '../radio/Radio';
-import { MdUndo, MdRedo, MdOutlinePlayArrow, MdOutlinePause } from 'react-icons/md';
+import { MdUndo, MdRedo, MdOutlinePlayArrow, MdOutlinePause, MdOutlineHeadphones } from 'react-icons/md';
 const LandingPage = () => {
     const [radio, setRadio] = useState(null);
     const [playing, setPlaying] = useState(false);
@@ -38,10 +38,14 @@ const LandingPage = () => {
             </div>
             <div className="media-content">
                 {RadioStations.map((rs, index) => {
-                    return <Card key={index} className={(radioStation && rs.id === radioStation.id) ? "current-station" : ""}
+                    return <Card
+                        key={index} className={(radioStation && rs.id === radioStation.id) ? "current-station shadow" : ""}
                         onClick={() => handlePlay(rs)}
                     >
-                        <Card.Header className="text-center"> <span>{rs.name}</span></Card.Header>
+                        <Card.Header className="text-center">
+                            <span>{rs.name}</span>
+                            {((radioStation && rs.id === radioStation.id) && playing) && <>&nbsp;<MdOutlineHeadphones /> </>}
+                        </Card.Header>
                         <Card.Body>
                             <Card.Img src={rs.icon} />
                         </Card.Body>
