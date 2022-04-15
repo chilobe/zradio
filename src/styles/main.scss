@@ -50,6 +50,10 @@ body,
 
             img {
                 overflow: hidden;
+                //vertically align image in div...
+                position: relative;
+                top: 50%;
+                transform: translateY(-50%);
                 //opacity: 0.7;
             }
 

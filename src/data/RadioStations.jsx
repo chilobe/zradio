@@ -1,28 +1,28 @@
 import HotFmIcon from '../img/hot_fm.png';
 import iWaveFmIcon from '../img/iwave_fm.png';
 import phoenixFmIcon from '../img/radio_phoenix.png';
-import sunFmIcon from '../img/sun_fm.jpg';
-import breezeFmIcon from '../img/breeze_fm.jpg';
-import radioChikuniIcon from '../img/radio_chikuni.jpg';
-import rockFmIcon from '../img/rock_fm.jpg';
-import christianVoiceIcon from '../img/christian_voice.webp'
+import sunFmIcon from '../img/sun_fm.png';
+import breezeFmIcon from '../img/breeze_fm.png';
+import radioChikuniIcon from '../img/radio_chikuni.png';
+import rockFmIcon from '../img/rock_fm.png';
+import christianVoiceIcon from '../img/christian_voice.png'
 
 const RadioStations = [
-    {
-        name: "HOT FM",
-        urls: [
-            "http://s2.yesstreaming.net:7091/stream"
-        ],
-        icon: HotFmIcon,
-        id: 0
-    },
     {
         name: "IWave FM Radio",
         urls: [
             "http://s47.myradiostream.com:9934/listen.mp3"
         ],
         icon: iWaveFmIcon,
-        id: 1,
+        id: 0,
+    },
+    {
+        name: "HOT FM",
+        urls: [
+            "http://s2.yesstreaming.net:7091/stream"
+        ],
+        icon: HotFmIcon,
+        id: 1
     },
     {
         name: "Radio Phoenix 89.5",
