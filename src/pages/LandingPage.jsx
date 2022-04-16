@@ -1,10 +1,17 @@
 import { Spinner, Button, Card } from 'react-bootstrap';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useState, useCallback } from 'react';
 import RadioStations from '../data/RadioStations';
 import { RADIO_EVENTS, Radio } from '../radio/Radio';
-import { MdUndo, MdRedo, MdOutlinePlayArrow, MdOutlinePause, MdOutlineHeadphones } from 'react-icons/md';
-
+import {
+    MdUndo,
+    MdRedo,
+    MdOutlinePlayArrow,
+    MdOutlinePause,
+    MdOutlineHeadphones,
+    MdError
+} from 'react-icons/md';
 import silence from '../data/sound/5-seconds-of-silence.mp3';
+
 const LandingPage = () => {
     const [radio, setRadio] = useState(null);
     const [playing, setPlaying] = useState(false);
@@ -12,32 +19,46 @@ const LandingPage = () => {
     const [radioStation, setRadioStation] = useState(null);
     const [mediaSessionEnabled, setMediaSessionEnabled] = useState(false);
 
+    const handleLoadErrorEvent = useCallback(() => {
+        setLoading(false);
+        setRadioStation({ ...radioStation, error: true });
+    }, [radioStation]);
+
     useEffect(() => {
         setRadioStation(RadioStations[0]);
-        console.debug("cwm - ", RadioStations[0]);
-        setRadio(new Radio());
+        setRadio(new Radio(RadioStations));
 
         const handleMuteEvent = () => {
             setPlaying(false);
         };
 
         const handleUnmuteEvent = () => {
+            setLoading(false);
             setPlaying(true);
         };
 
+        const handlePlayEvent = () => {
+            setLoading(false);
+            setPlaying(true);
+        }
+
         window.addEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
         window.addEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
+        window.addEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
 
         return () => {
             window.removeEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
             window.removeEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
+            window.removeEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
         }
     }, []);
 
+    useEffect(() => {
+        window.addEventListener(RADIO_EVENTS.LOAD_ERROR, handleLoadErrorEvent);
+        return () => window.removeEventListener(RADIO_EVENTS.LOAD_ERROR, handleLoadErrorEvent);
+    }, [handleLoadErrorEvent]);
 
-
-    const handlePlay = async (radioStation) => {
-
+    const setupMediaSession = () => {
         //this is a hack to allow mediasession to work better with ios.
         if (!mediaSessionEnabled && radioStation) {
             navigator.mediaSession.metadata = new window.MediaMetadata({
@@ -55,28 +76,52 @@ const LandingPage = () => {
 
             document.getElementById('silentSound').play();
 
-            console.debug("cwm played!");
             document.getElementById('silentSound').pause();
             navigator.mediaSession.playbackState = "paused";
 
             setMediaSessionEnabled(true);
         }
-        //navigator.mediaSession.playbackState = "paused";
+    }
 
-
-        setRadioStation(radioStation);
-        setLoading(true);
-        try {
-            await radio.playStation(radioStation);
-            setPlaying(true);
-        }
-        catch (error) {
-            console.error("playback error-", error);
-        }
-        finally {
-            setLoading(false);
+    const handlePlayPauseBtnClick = () => {
+        setupMediaSession();
+        if (radio) {
+            if (radio.isPlaying()) {
+                if (radio.isMuted()) {
+                    radio.unMute();
+                }
+                else {
+                    radio.mute();
+                }
+            }
+            else {
+                setLoading(true);
+                setPlaying(false);
+                radio.playStation(radioStation);
+            }
         }
     }
+
+    const handleStationIconClick = (rs) => {
+        setRadioStation(rs);
+        setupMediaSession();
+        if (radio) {
+            setLoading(true);
+            setPlaying(false);
+            radio.playStation(rs);
+        }
+    }
+
+    const getRadioStationClassNames = (rs) => {
+        let className = "shadow ";
+        if (radioStation && rs.id === radioStation.id) {
+            className = className + "current-station ";
+            if (radioStation.error) {
+                className = className + "station-error";
+            }
+        }
+        return className;
+    };
 
     return <>
         <div className="media-player-container">
@@ -87,12 +132,15 @@ const LandingPage = () => {
             <div className="media-content">
                 {RadioStations.map((rs, index) => {
                     return <Card
-                        key={index} className={(radioStation && rs.id === radioStation.id) ? "current-station shadow" : ""}
-                        onClick={() => handlePlay(rs)}
+                        key={index} className={getRadioStationClassNames(rs)}
+                        onClick={() => handleStationIconClick(rs)}
                     >
                         <Card.Header className="text-center">
                             <span>{rs.name}</span>
                             {((radioStation && rs.id === radioStation.id) && playing) && <>&nbsp;<MdOutlineHeadphones /> </>}
+                            {((radioStation && rs.id === radioStation.id) && loading) && <>&nbsp;<Spinner animation="border" role="status" /> </>}
+                            {((radioStation && rs.id === radioStation.id) && radioStation.error) && <>&nbsp;<MdError /> </>}
+
                         </Card.Header>
                         <Card.Body>
                             <Card.Img src={rs.icon} />
@@ -110,24 +158,11 @@ const LandingPage = () => {
 
                 <Fragment>
 
-                    {loading ? <Spinner animation="border" role="status">
+                    {loading ? <Spinner animation="border" role="status" className="media-control">
                         <span className="visually-hidden">Loading...</span>
                     </Spinner> :
                         <Button className="media-control" variant="dark"
-                            onClick={
-
-                                () => {
-                                    if (radio) {
-                                        if (radio.isPlaying()) {
-                                            radio.pause();
-                                            setPlaying(false);
-                                        }
-                                        else {
-                                            handlePlay(radioStation);
-                                        }
-                                    }
-                                }
-                            }>
+                            onClick={handlePlayPauseBtnClick}>
                             {playing && <MdOutlinePause />}
                             {!playing && <MdOutlinePlayArrow />}
                         </Button>

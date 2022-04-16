@@ -9,7 +9,8 @@ const RADIO_EVENTS = {
     UNMUTED: "UMUTED",
     PLAYING: "PLAYING",
     PAUSED: "PAUSED",
-    STOPPED: "STOPPED"
+    STOPPED: "STOPPED",
+    LOAD_ERROR: "LOAD_ERROR"
 }
 
 function Radio(stations) {
@@ -29,6 +30,7 @@ function Radio(stations) {
         catch (error) {
             console.error(errorMsg + ": " + error);
         }
+        return false;
     }
 
     const isPlaying = () => {
@@ -37,6 +39,35 @@ function Radio(stations) {
         }, "Error in isPlaying()");
     };
     this.isPlaying = isPlaying;
+
+    const isMuted = () => {
+        return withTryCatch(() => {
+            return currentSound && currentSound.mute();
+        }, "Error in isMuted()");
+    };
+    this.isMuted = isMuted;
+
+    const mute = () => {
+        return withTryCatch(() => {
+            if (currentSound) {
+                currentSound.mute(true);
+                return true;
+            }
+        }, "Error in mute()");
+    };
+    this.mute = mute;
+
+    const unMute = () => {
+        return withTryCatch(() => {
+            if (currentSound) {
+                currentSound.mute(false);
+                return true;
+            }
+        }, "Error in unMute()");
+    }
+    this.unMute = unMute;
+
+
 
     const setupSoundEventListeners = (sound) => {
         withTryCatch(() => {
@@ -67,13 +98,17 @@ function Radio(stations) {
                 navigator.mediaSession.playbackState = currentSound.mute() ? "paused" : "playing";
             });
 
+            sound.on('loaderror', () => {
+                window.dispatchEvent(new Event(RADIO_EVENTS.LOAD_ERROR));
+            })
+
             sound.on('load', () => {
                 console.debug("cwm load event!");
             });
 
             sound.on('rate', () => {
                 console.debug("cwm unlock event!");
-            })
+            });
 
         }, "Error in setupSoundEventListeners()");
     };
@@ -175,6 +210,10 @@ function Radio(stations) {
 
     const playStation = async (radioStation) => {
         return withTryCatch(() => {
+            if (currentSound) {
+                currentSound.unload();
+            }
+
             if (currentStationID === radioStation.id) {
                 if (!isPlaying()) {
                     return playSound(currentSound);
@@ -190,10 +229,6 @@ function Radio(stations) {
                     artwork: [{ src: radioStation.icon, sizes: '384x384', type: 'image/png' },
                     ]
                 });
-
-                if (currentSound) {
-                    currentSound.unload();
-                }
 
                 currentSound = new Howl({
                     src: [radioStation.urls],
