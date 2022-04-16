@@ -93,7 +93,6 @@ function Radio(stations) {
                 else {
                     window.dispatchEvent(new Event(RADIO_EVENTS.UNMUTED));
                 }
-                console.debug("cwm mute!-", currentSound.mute());
 
                 navigator.mediaSession.playbackState = currentSound.mute() ? "paused" : "playing";
             });
@@ -127,6 +126,8 @@ function Radio(stations) {
                         playbackRate: 1,
                         position: 80
                     });
+                    sound.mute(false);
+                    navigator.mediaSession.playbackState = "playing";
 
                     resolve(true);
                 });
