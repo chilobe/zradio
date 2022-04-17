@@ -5,16 +5,20 @@ import sunFmIcon from '../img/sun_fm.png';
 import breezeFmIcon from '../img/breeze_fm.png';
 import radioChikuniIcon from '../img/radio_chikuni.png';
 import rockFmIcon from '../img/rock_fm.png';
-import christianVoiceIcon from '../img/christian_voice.png'
+import christianVoiceIcon from '../img/christian_voice.png';
+import metroFmIcon from '../img/metro_fm.png';
+import zedStageIcon from '../img/zed_stage.png';
+import fiveFmIcon from '../img/5fm_radio.png';
+import dcTalkRadioIcon from '../img/dc_talk_radio.png'; //TODO
 
 const RadioStations = [
     {
         name: "IWave FM Radio",
         urls: [
-            "http://s47.myradiostream.com:9934/listen.mp3"
+            "https://s47.myradiostream.com/:9934/listen.mp3"
         ],
         icon: iWaveFmIcon,
-        id: 0,
+        id: 0, fiveFmIcon
     },
     {
         name: "HOT FM",
@@ -71,6 +75,30 @@ const RadioStations = [
         ],
         icon: christianVoiceIcon,
         id: 7,
+    },
+    {
+        name: "Metro FM",
+        urls: [
+            "https://s24.myradiostream.com/:15422/listen.mp3"
+        ],
+        icon: metroFmIcon,
+        id: 8,
+    },
+    {
+        name: "Zed Stage Radio",
+        urls: [
+            "https://node-03.zeno.fm/49836bqkpd0uv"
+        ],
+        icon: zedStageIcon,
+        id: 9,
+    },
+    {
+        name: "5fm Radio",
+        urls: [
+            "http://ca9.rcast.net:8014/;stream.mp3"
+        ],
+        icon: fiveFmIcon,
+        id: 10,
     }
 ];
 
