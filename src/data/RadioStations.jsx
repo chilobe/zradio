@@ -10,6 +10,8 @@ import metroFmIcon from '../img/metro_fm.png';
 import zedStageIcon from '../img/zed_stage.png';
 import fiveFmIcon from '../img/5fm_radio.png';
 import dcTalkRadioIcon from '../img/dc_talk_radio.png'; //TODO
+import komboniRadioIcon from '../img/komboni_radio.png';
+
 
 const RadioStations = [
     {
@@ -21,12 +23,25 @@ const RadioStations = [
         id: 0, fiveFmIcon
     },
     {
+        name: "Komboni Radio",
+        urls: [
+            "http://41.72.106.138:5000/"
+        ],
+        icon: komboniRadioIcon,
+        id: 1,
+        xhr: {
+            headers: {
+                Referer: "http://kombonipobo.com/"
+            }
+        }
+    },
+    {
         name: "HOT FM",
         urls: [
             "http://s2.yesstreaming.net:7091/stream"
         ],
         icon: HotFmIcon,
-        id: 1
+        id: 2
     },
     {
         name: "Radio Phoenix 89.5",
@@ -34,7 +49,7 @@ const RadioStations = [
             "https://23553.live.streamtheworld.com/RADIO_PHOENIXAAC_SC"
         ],
         icon: phoenixFmIcon,
-        id: 2,
+        id: 3,
     },
     {
         name: "Sun FM",
@@ -42,7 +57,7 @@ const RadioStations = [
             "http://11233.cloudrad.io:9102/live"
         ],
         icon: sunFmIcon,
-        id: 3,
+        id: 4,
     },
     {
         name: "Breeze FM Chipata",
@@ -50,7 +65,7 @@ const RadioStations = [
             "https://s47.myradiostream.com/9934/listen.mp3"
         ],
         icon: breezeFmIcon,
-        id: 4,
+        id: 5,
     },
     {
         name: "Radio Chikuni",
@@ -58,7 +73,7 @@ const RadioStations = [
             "http://centauri.shoutca.st:8102/stream"
         ],
         icon: radioChikuniIcon,
-        id: 5,
+        id: 6,
     },
     {
         name: "965 Rock FM",
@@ -66,7 +81,7 @@ const RadioStations = [
             "http://99.198.118.250:8238/stream"
         ],
         icon: rockFmIcon,
-        id: 6,
+        id: 7,
     },
     {
         name: "Radio Christian Voice",
@@ -74,7 +89,7 @@ const RadioStations = [
             "http://zas2.ndx.co.za/proxy/cvglobal?mp=/stream"
         ],
         icon: christianVoiceIcon,
-        id: 7,
+        id: 8,
     },
     {
         name: "Metro FM",
@@ -82,7 +97,7 @@ const RadioStations = [
             "https://s24.myradiostream.com/:15422/listen.mp3"
         ],
         icon: metroFmIcon,
-        id: 8,
+        id: 9,
     },
     {
         name: "Zed Stage Radio",
@@ -90,7 +105,7 @@ const RadioStations = [
             "https://node-03.zeno.fm/49836bqkpd0uv"
         ],
         icon: zedStageIcon,
-        id: 9,
+        id: 10,
     },
     {
         name: "5fm Radio",
@@ -98,8 +113,7 @@ const RadioStations = [
             "http://ca9.rcast.net:8014/;stream.mp3"
         ],
         icon: fiveFmIcon,
-        id: 10,
+        id: 11,
     }
 ];
-
 export default RadioStations;
