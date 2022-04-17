@@ -21,6 +21,7 @@ const LandingPage = () => {
 
     const handleLoadErrorEvent = useCallback(() => {
         setLoading(false);
+        setPlaying(false);
         setRadioStation({ ...radioStation, error: true });
     }, [radioStation]);
 
