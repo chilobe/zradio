@@ -231,15 +231,11 @@ function Radio(stations) {
                     ]
                 });
 
-                const stationProperties = {
+                currentSound = new Howl({
                     src: [radioStation.urls],
                     html5: true,
-                    preload: false,
-                };
-                if (radioStation.xhr) {
-                    stationProperties.xhr = radioStation.xhr
-                }
-                currentSound = new Howl(stationProperties);
+                    preload: false
+                });
 
                 setActionHandlers();
                 return playSound(currentSound);
