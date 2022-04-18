@@ -1,5 +1,5 @@
 import { Spinner, Button, Card } from 'react-bootstrap';
-import { Fragment, useEffect, useState, useCallback } from 'react';
+import { Fragment, useEffect, useState, useCallback, useLayoutEffect } from 'react';
 import RadioStations from '../data/RadioStations';
 import { RADIO_EVENTS, Radio } from '../radio/Radio';
 import {
@@ -30,6 +30,13 @@ const LandingPage = () => {
         setLoading(true);
         setRadioStation(radio.getCurrentStation());
     }, [radio]);
+
+    useLayoutEffect(() => {
+        const currentStationElement = document.querySelector('.current-station');
+        if (currentStationElement) {
+            currentStationElement.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [radioStation]);
 
 
     useEffect(() => {
