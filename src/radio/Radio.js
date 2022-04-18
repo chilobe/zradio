@@ -10,7 +10,8 @@ const RADIO_EVENTS = {
     PLAYING: "PLAYING",
     PAUSED: "PAUSED",
     STOPPED: "STOPPED",
-    LOAD_ERROR: "LOAD_ERROR"
+    LOAD_ERROR: "LOAD_ERROR",
+    STATION_CHANGED: "STATION_CHANGED"
 }
 
 function Radio(stations) {
@@ -22,6 +23,7 @@ function Radio(stations) {
     let currentStationID = null;
     let currentSound = null;
     let actionHandlersSet = false;
+    let currentStationIndex = 0;
 
     const withTryCatch = (callback, errorMsg) => {
         try {
@@ -66,6 +68,11 @@ function Radio(stations) {
         }, "Error in unMute()");
     }
     this.unMute = unMute;
+
+    const getCurrentStation = () => {
+        return stations[currentStationIndex];
+    };
+    this.getCurrentStation = getCurrentStation;
 
 
 
@@ -188,13 +195,41 @@ function Radio(stations) {
     }
     this.handlePlayAction = handlePlayAction;
 
+    const handleNextAction = () => {
+        let newStationIndex;
+        if (currentStationIndex >= (stations.length - 1)) {
+            newStationIndex = 0;
+        }
+        else {
+            newStationIndex = currentStationIndex + 1;
+        }
+        playStation(stations[newStationIndex]);
+        window.dispatchEvent(new Event(RADIO_EVENTS.STATION_CHANGED));
+    };
+    this.handleNextAction = handleNextAction;
+
+    const handlePrevAction = () => {
+        let newStationIndex;
+        if (currentStationIndex <= 0) {
+            newStationIndex = stations.length - 1;
+        }
+        else {
+            newStationIndex = currentStationIndex - 1;
+        }
+
+        playStation(stations[newStationIndex]);
+
+        window.dispatchEvent(new Event(RADIO_EVENTS.STATION_CHANGED));
+    };
+    this.handlePrevAction = handlePrevAction;
+
     const setActionHandlers = () => {
         if (!actionHandlersSet) {
             const actionHandlers = [
                 ['play', () => handlePlayAction()],
                 ['pause', () => handlePauseAction()],
-                ['previoustrack', () => console.debug("cwm previoustrack")],
-                ['nexttrack', () => console.debug("cwm nexttrack")],
+                ['previoustrack', () => handlePrevAction()],
+                ['nexttrack', () => handleNextAction()],
                 ['stop', () => console.debug("cwm stop")],
             ];
 
@@ -222,6 +257,7 @@ function Radio(stations) {
             }
             else {
                 currentStationID = radioStation.id;
+                currentStationIndex = stations.findIndex(s => s.id === radioStation.id);
 
                 document.title = document.title + ' ' + radioStation.name;
                 navigator.mediaSession.metadata = new window.MediaMetadata({

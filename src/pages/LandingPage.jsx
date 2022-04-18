@@ -25,6 +25,13 @@ const LandingPage = () => {
         setRadioStation({ ...radioStation, error: true });
     }, [radioStation]);
 
+    const handleStationChanged = useCallback(() => {
+        setPlaying(false);
+        setLoading(true);
+        setRadioStation(radio.getCurrentStation());
+    }, [radio]);
+
+
     useEffect(() => {
         setRadioStation(RadioStations[0]);
         setRadio(new Radio(RadioStations));
@@ -58,6 +65,11 @@ const LandingPage = () => {
         window.addEventListener(RADIO_EVENTS.LOAD_ERROR, handleLoadErrorEvent);
         return () => window.removeEventListener(RADIO_EVENTS.LOAD_ERROR, handleLoadErrorEvent);
     }, [handleLoadErrorEvent]);
+
+    useEffect(() => {
+        window.addEventListener(RADIO_EVENTS.STATION_CHANGED, handleStationChanged);
+        return () => window.removeEventListener(RADIO_EVENTS.STATION_CHANGED, handleStationChanged);
+    }, [handleStationChanged]);
 
     const setupMediaSession = () => {
         //this is a hack to allow mediasession to work better with ios.
@@ -153,7 +165,9 @@ const LandingPage = () => {
                 <audio src={silence} id="silentSound" loop>
                     audio unspported
                 </audio>
-                <Button className="media-control" variant="dark">
+                <Button className="media-control"
+                    variant="dark"
+                    onClick={() => radio.handlePrevAction()}>
                     <MdUndo />
                 </Button>
 
@@ -170,7 +184,9 @@ const LandingPage = () => {
                     }
                 </Fragment>
 
-                <Button className="media-control" variant="dark">
+                <Button className="media-control"
+                    variant="dark"
+                    onClick={() => radio.handleNextAction()}>
                     <MdRedo />
                 </Button>
             </div>
