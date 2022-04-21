@@ -10,6 +10,7 @@ import metroFmIcon from '../img/metro_fm.png';
 import zedStageIcon from '../img/zed_stage.png';
 import fiveFmIcon from '../img/5fm_radio.png';
 import dcTalkRadioIcon from '../img/dc_talk_radio.png'; //TODO
+import komboniRadioICon from '../img/komboni_radio.png';
 
 const RadioStations = [
     {
@@ -99,6 +100,14 @@ const RadioStations = [
         ],
         icon: fiveFmIcon,
         id: 10,
+    },
+    {
+        name: "Komboni Radio",
+        urls: [
+            "http://88.111.246.140:8005/zradio"
+        ],
+        icon: komboniRadioICon,
+        id: 11,
     }
 ];
 
