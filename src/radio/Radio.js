@@ -1,5 +1,5 @@
 import { Howl } from 'howler';
-
+import errorAudio from '../data/sounds/error.mp3';
 /*TODO 
 1 ON ERROR, SEND OUT AN EMAIL WITH DETAIL
 */
@@ -24,6 +24,13 @@ function Radio(stations) {
     let currentSound = null;
     let actionHandlersSet = false;
     let currentStationIndex = 0;
+
+    const errorSound = new Howl({ src: [errorAudio], html5: true });
+
+    const playErrorSound = () => {
+        if (errorSound.playing()) return
+        errorSound.play();
+    }
 
     const withTryCatch = (callback, errorMsg) => {
         try {
@@ -74,8 +81,6 @@ function Radio(stations) {
     };
     this.getCurrentStation = getCurrentStation;
 
-
-
     const setupSoundEventListeners = (sound) => {
         withTryCatch(() => {
             sound.on('pause', () => {
@@ -106,7 +111,8 @@ function Radio(stations) {
 
             sound.on('loaderror', () => {
                 window.dispatchEvent(new Event(RADIO_EVENTS.LOAD_ERROR));
-            })
+                playErrorSound();
+            });
 
             sound.on('load', () => {
                 console.debug("cwm load event!");
@@ -116,6 +122,9 @@ function Radio(stations) {
                 console.debug("cwm unlock event!");
             });
 
+            sound.on('playerror', () => {
+                playErrorSound();
+            });
         }, "Error in setupSoundEventListeners()");
     };
 

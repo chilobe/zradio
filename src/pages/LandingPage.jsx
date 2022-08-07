@@ -10,7 +10,7 @@ import {
     MdOutlineHeadphones,
     MdError
 } from 'react-icons/md';
-import silence from '../data/sound/5-seconds-of-silence.mp3';
+import silence from '../data/sounds/5-seconds-of-silence.mp3';
 
 const LandingPage = () => {
     const [radio, setRadio] = useState(null);
