@@ -18,6 +18,7 @@ const LandingPage = () => {
     const [loading, setLoading] = useState(false);
     const [radioStation, setRadioStation] = useState(null);
     const [mediaSessionEnabled, setMediaSessionEnabled] = useState(false);
+    const [appLoading, setAppLoading] = useState(true);
 
     const handleLoadErrorEvent = useCallback(() => {
         setLoading(false);
@@ -57,14 +58,20 @@ const LandingPage = () => {
             setPlaying(true);
         }
 
+        const handleAppLoadedEvent = () => {
+            setAppLoading(false);
+        }
+
         window.addEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
         window.addEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
         window.addEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
+        window.addEventListener(RADIO_EVENTS.APP_LOADED, handleAppLoadedEvent);
 
         return () => {
             window.removeEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
             window.removeEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
             window.removeEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
+            window.removeEventListener(RADIO_EVENTS.APP_LOADED, handleAppLoadedEvent);
         }
     }, []);
 
@@ -147,8 +154,9 @@ const LandingPage = () => {
         <div className="media-player-container">
             <div className="media-header">
                 {loading && <>  <Spinner animation="border" role="status" />&nbsp; </>}
-                <span>{radioStation && radioStation.name}</span>
+                <span>{appLoading ? 'Loading...' : (radioStation && radioStation.name)}</span>
             </div>
+
             <div className="media-content">
                 {RadioStations.map((rs, index) => {
                     return <Card
@@ -168,6 +176,7 @@ const LandingPage = () => {
                     </Card>
                 })}
             </div>
+
             <div className="media-controls-container">
                 <audio src={silence} id="silentSound" loop>
                     audio unspported
@@ -197,6 +206,9 @@ const LandingPage = () => {
                     <MdRedo />
                 </Button>
             </div>
+            {appLoading && <div className="loading-overlay">
+                <Spinner animation="border" role="status" />
+            </div>}
         </div>
     </>;
 }
