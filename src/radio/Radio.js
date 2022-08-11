@@ -1,5 +1,6 @@
 import { Howl } from 'howler';
 import errorAudio from '../data/sounds/error.mp3';
+import calmAlarmAudio from '../data/sounds/calmAlarm.mp3';
 /*TODO 
 1 ON ERROR, SEND OUT AN EMAIL WITH DETAIL
 */
@@ -11,7 +12,8 @@ const RADIO_EVENTS = {
     PAUSED: "PAUSED",
     STOPPED: "STOPPED",
     LOAD_ERROR: "LOAD_ERROR",
-    STATION_CHANGED: "STATION_CHANGED"
+    STATION_CHANGED: "STATION_CHANGED",
+    APP_LOADED: "APP_LOADED"
 }
 
 function Radio(stations) {
@@ -25,11 +27,23 @@ function Radio(stations) {
     let actionHandlersSet = false;
     let currentStationIndex = 0;
 
-    const errorSound = new Howl({ src: [errorAudio], html5: true });
+    const loadingSound = new Howl({ src: [calmAlarmAudio], loop: true, preload: true });
 
-    const playErrorSound = () => {
-        if (errorSound.playing()) return
-        errorSound.play();
+    const playLoadingSound = () => {
+        console.debug("in playsound!-", isPlaying());
+        if (!isPlaying() && !loadingSound.playing()) {
+            loadingSound.play();
+        }
+    }
+
+    const stopLoadingSound = () => {
+        if (loadingSound.playing()) {
+            loadingSound.stop();
+        }
+    }
+
+    window.onload = function () {
+        window.dispatchEvent(new Event(RADIO_EVENTS.APP_LOADED));
     }
 
     const withTryCatch = (callback, errorMsg) => {
@@ -94,6 +108,9 @@ function Radio(stations) {
             });
 
             sound.on('play', () => {
+                if (loadingSound) {
+                    stopLoadingSound();
+                }
                 window.dispatchEvent(new Event(RADIO_EVENTS.PLAYING));
                 navigator.mediaSession.playbackState = "playing";
             });
@@ -111,6 +128,7 @@ function Radio(stations) {
 
             sound.on('loaderror', () => {
                 window.dispatchEvent(new Event(RADIO_EVENTS.LOAD_ERROR));
+                stopLoadingSound();
                 playErrorSound();
             });
 
@@ -129,6 +147,7 @@ function Radio(stations) {
     };
 
     const playSound = async (sound) => {
+        playLoadingSound();
         setupSoundEventListeners(sound);
 
         return withTryCatch(() => {
@@ -252,6 +271,13 @@ function Radio(stations) {
             actionHandlersSet = true;
         }
     };
+
+    const errorSound = new Howl({ src: [errorAudio], preload: true });
+
+    const playErrorSound = () => {
+        if (errorSound.playing()) return
+        errorSound.play();
+    }
 
     const playStation = async (radioStation) => {
         return withTryCatch(() => {
