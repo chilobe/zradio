@@ -100,14 +100,6 @@ const RadioStations = [
         ],
         icon: fiveFmIcon,
         id: 10,
-    },
-    {
-        name: "Komboni Radio",
-        urls: [
-            "http://88.111.246.140:8005/zradio"
-        ],
-        icon: komboniRadioICon,
-        id: 11,
     }
 ];
 
