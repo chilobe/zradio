@@ -1,24 +1,26 @@
 {
   "files": {
-    "main.css": "/zradio/static/css/main.9653d199.chunk.css",
-    "main.js": "/zradio/static/js/main.af9a6145.chunk.js",
-    "main.js.map": "/zradio/static/js/main.af9a6145.chunk.js.map",
+    "main.css": "/zradio/static/css/main.c77a5411.chunk.css",
+    "main.js": "/zradio/static/js/main.b47306b9.chunk.js",
+    "main.js.map": "/zradio/static/js/main.b47306b9.chunk.js.map",
     "runtime-main.js": "/zradio/static/js/runtime-main.aec454cc.js",
     "runtime-main.js.map": "/zradio/static/js/runtime-main.aec454cc.js.map",
-    "static/js/2.d9e6f02d.chunk.js": "/zradio/static/js/2.d9e6f02d.chunk.js",
-    "static/js/2.d9e6f02d.chunk.js.map": "/zradio/static/js/2.d9e6f02d.chunk.js.map",
+    "static/js/2.6219a687.chunk.js": "/zradio/static/js/2.6219a687.chunk.js",
+    "static/js/2.6219a687.chunk.js.map": "/zradio/static/js/2.6219a687.chunk.js.map",
     "static/js/3.7fd942db.chunk.js": "/zradio/static/js/3.7fd942db.chunk.js",
     "static/js/3.7fd942db.chunk.js.map": "/zradio/static/js/3.7fd942db.chunk.js.map",
     "index.html": "/zradio/index.html",
     "service-worker.js": "/zradio/service-worker.js",
     "service-worker.js.map": "/zradio/service-worker.js.map",
-    "static/css/main.9653d199.chunk.css.map": "/zradio/static/css/main.9653d199.chunk.css.map",
-    "static/js/2.d9e6f02d.chunk.js.LICENSE.txt": "/zradio/static/js/2.d9e6f02d.chunk.js.LICENSE.txt",
+    "static/css/main.c77a5411.chunk.css.map": "/zradio/static/css/main.c77a5411.chunk.css.map",
+    "static/js/2.6219a687.chunk.js.LICENSE.txt": "/zradio/static/js/2.6219a687.chunk.js.LICENSE.txt",
     "static/media/5-seconds-of-silence.be2bc6f4.mp3": "/zradio/static/media/5-seconds-of-silence.be2bc6f4.mp3",
     "static/media/5fm_radio.89d530c1.png": "/zradio/static/media/5fm_radio.89d530c1.png",
     "static/media/breeze_fm.2baf4b59.png": "/zradio/static/media/breeze_fm.2baf4b59.png",
+    "static/media/calmAlarm.c1088cde.mp3": "/zradio/static/media/calmAlarm.c1088cde.mp3",
     "static/media/christian_voice.c4d118c8.png": "/zradio/static/media/christian_voice.c4d118c8.png",
     "static/media/dc_talk_radio.8b6d29d4.png": "/zradio/static/media/dc_talk_radio.8b6d29d4.png",
+    "static/media/error.a6806e62.mp3": "/zradio/static/media/error.a6806e62.mp3",
     "static/media/hot_fm.572a6cfd.png": "/zradio/static/media/hot_fm.572a6cfd.png",
     "static/media/iwave_fm.73d51dfc.png": "/zradio/static/media/iwave_fm.73d51dfc.png",
     "static/media/komboni_radio.3dde8ba1.png": "/zradio/static/media/komboni_radio.3dde8ba1.png",
@@ -31,8 +33,8 @@
   },
   "entrypoints": [
     "static/js/runtime-main.aec454cc.js",
-    "static/js/2.d9e6f02d.chunk.js",
-    "static/css/main.9653d199.chunk.css",
-    "static/js/main.af9a6145.chunk.js"
+    "static/js/2.6219a687.chunk.js",
+    "static/css/main.c77a5411.chunk.css",
+    "static/js/main.b47306b9.chunk.js"
   ]
 }
