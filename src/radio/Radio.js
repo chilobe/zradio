@@ -1,6 +1,7 @@
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import errorAudio from '../data/sounds/error.mp3';
 import calmAlarmAudio from '../data/sounds/calmAlarm.mp3';
+import stations from '../data/RadioStations';
 /*TODO 
 1 ON ERROR, SEND OUT AN EMAIL WITH DETAIL
 */
@@ -16,21 +17,21 @@ const RADIO_EVENTS = {
     APP_LOADED: "APP_LOADED"
 }
 
-function Radio(stations) {
+function Radio() {
     const ERRORS = {
         NETWORK_ERROR: "NETWORK ERROR",
         LOAD_ERROR: "LOAD ERROR"
     }
 
-    let currentStationID = null;
-    let currentSound = null;
     let actionHandlersSet = false;
     let currentStationIndex = 0;
+
+    const getStations = () => stations;
+    this.getStations = getStations;
 
     const loadingSound = new Howl({ src: [calmAlarmAudio], loop: true, preload: true });
 
     const playLoadingSound = () => {
-        console.debug("in playsound!-", isPlaying());
         if (!isPlaying() && !loadingSound.playing()) {
             loadingSound.play();
         }
@@ -58,42 +59,13 @@ function Radio(stations) {
 
     const isPlaying = () => {
         return withTryCatch(() => {
-            return currentSound && currentSound.playing()
+            return stations[currentStationIndex] && stations[currentStationIndex].howl.playing()
         }, "Error in isPlaying()");
     };
     this.isPlaying = isPlaying;
 
-    const isMuted = () => {
-        return withTryCatch(() => {
-            return currentSound && currentSound.mute();
-        }, "Error in isMuted()");
-    };
-    this.isMuted = isMuted;
-
-    const mute = () => {
-        return withTryCatch(() => {
-            if (currentSound) {
-                currentSound.mute(true);
-                return true;
-            }
-        }, "Error in mute()");
-    };
-    this.mute = mute;
-
-    const unMute = () => {
-        return withTryCatch(() => {
-            if (currentSound) {
-                currentSound.mute(false);
-                return true;
-            }
-        }, "Error in unMute()");
-    }
-    this.unMute = unMute;
-
-    const getCurrentStation = () => {
-        return stations[currentStationIndex];
-    };
-    this.getCurrentStation = getCurrentStation;
+    const getCurrentStationIndex = () => currentStationIndex;
+    this.getCurrentStationIndex = getCurrentStationIndex;
 
     const setupSoundEventListeners = (sound) => {
         withTryCatch(() => {
@@ -115,18 +87,11 @@ function Radio(stations) {
                 navigator.mediaSession.playbackState = "playing";
             });
 
-            sound.on('mute', () => {
-                if (currentSound.mute()) {
-                    window.dispatchEvent(new Event(RADIO_EVENTS.MUTED));
-                }
-                else {
-                    window.dispatchEvent(new Event(RADIO_EVENTS.UNMUTED));
-                }
 
-                navigator.mediaSession.playbackState = currentSound.mute() ? "paused" : "playing";
-            });
 
             sound.on('loaderror', () => {
+                console.debug("cwm load error!");
+                stations[currentStationIndex].howl = null;
                 window.dispatchEvent(new Event(RADIO_EVENTS.LOAD_ERROR));
                 stopLoadingSound();
                 playErrorSound();
@@ -172,51 +137,19 @@ function Radio(stations) {
             })
         }, "Error in playSound()")
     };
-    const play = () => {
-        withTryCatch(() => {
-            if (currentSound) {
-                if (currentSound.mute()) {
-                    currentSound.mute(false);
-                }
-                else {
-                    currentSound.mute(true);
-                }
-            }
-        }, "Error in play()");
-    }
-    this.play = play;
 
-    const pause = () => {
-        withTryCatch(() => {
-            if (currentSound) {
-                currentSound.mute(true);
-            }
-        }, "Error in pause()")
-    };
-    this.pause = pause;
 
     const stop = () => {
         withTryCatch(() => {
-            if (currentSound) {
-                currentSound.stop();
+            stations[currentStationIndex].howl.mute()
+            if (stations[currentStationIndex] && stations[currentStationIndex].howl) {
+                stations[currentStationIndex].howl.stop();
             }
         }, "Error in stop()");
     }
     this.stop = stop;
 
-    const handlePauseAction = () => {
-        withTryCatch(() => {
-            if (currentSound) {
-                if (currentSound.mute()) {
-                    currentSound.mute(false);
-                }
-                else {
-                    currentSound.mute(true);
-                }
-            }
-        }, "Error in handlePauseAction()");
-    }
-    this.handlePauseAction = handlePauseAction;
+
 
     const handlePlayAction = () => {
         play();
@@ -231,8 +164,7 @@ function Radio(stations) {
         else {
             newStationIndex = currentStationIndex + 1;
         }
-        playStation(stations[newStationIndex]);
-        window.dispatchEvent(new Event(RADIO_EVENTS.STATION_CHANGED));
+        play(newStationIndex);
     };
     this.handleNextAction = handleNextAction;
 
@@ -245,9 +177,7 @@ function Radio(stations) {
             newStationIndex = currentStationIndex - 1;
         }
 
-        playStation(stations[newStationIndex]);
-
-        window.dispatchEvent(new Event(RADIO_EVENTS.STATION_CHANGED));
+        play(newStationIndex);
     };
     this.handlePrevAction = handlePrevAction;
 
@@ -255,7 +185,7 @@ function Radio(stations) {
         if (!actionHandlersSet) {
             const actionHandlers = [
                 ['play', () => handlePlayAction()],
-                ['pause', () => handlePauseAction()],
+                ['pause', () => console.debug("cwm paused!")],
                 ['previoustrack', () => handlePrevAction()],
                 ['nexttrack', () => handleNextAction()],
                 ['stop', () => console.debug("cwm stop")],
@@ -279,41 +209,51 @@ function Radio(stations) {
         errorSound.play();
     }
 
-    const playStation = async (radioStation) => {
+    const play = async (index) => {
+        Howler.stop();
+
+        const oldStationIndex = currentStationIndex;
+
+        console.debug("cwm oldStationIndex-", oldStationIndex, "t-", typeof index);
+
+        currentStationIndex = (typeof index === 'number') ? index : currentStationIndex;
+
+        console.debug("cwm currentStationIndex-", currentStationIndex);
+
+
+        const radioStation = stations[currentStationIndex];
+
+        if (oldStationIndex !== currentStationIndex) {
+            window.dispatchEvent(new Event(RADIO_EVENTS.STATION_CHANGED));
+            console.debug("station changed!");
+        }
+
+        let sound;
+        if (radioStation.howl) {
+            sound = radioStation.howl;
+        }
+        else {
+            sound = radioStation.howl = new Howl({
+                src: [radioStation.urls],
+                html5: true, // A live stream can only be played through HTML5 Audio.
+            });
+        }
+
         return withTryCatch(() => {
-            if (currentSound) {
-                currentSound.unload();
-            }
+            document.title = document.title + ' ' + radioStation.name;
+            navigator.mediaSession.metadata = new window.MediaMetadata({
+                title: radioStation.name,
+                album: 'ZRadio 2',
+                artwork: [{ src: radioStation.icon, sizes: '384x384', type: 'image/png' },
+                ]
+            });
 
-            if (currentStationID === radioStation.id) {
-                if (!isPlaying()) {
-                    return playSound(currentSound);
-                }
-            }
-            else {
-                currentStationID = radioStation.id;
-                currentStationIndex = stations.findIndex(s => s.id === radioStation.id);
+            setActionHandlers();
+            return playSound(sound);
 
-                document.title = document.title + ' ' + radioStation.name;
-                navigator.mediaSession.metadata = new window.MediaMetadata({
-                    title: radioStation.name,
-                    album: 'ZRadio 2',
-                    artwork: [{ src: radioStation.icon, sizes: '384x384', type: 'image/png' },
-                    ]
-                });
-
-                currentSound = new Howl({
-                    src: [radioStation.urls],
-                    html5: true,
-                    preload: false
-                });
-
-                setActionHandlers();
-                return playSound(currentSound);
-            }
-        }, "Error in playStation()");
+        }, "Error in play()");
     }
-    this.playStation = playStation;
+    this.play = play;
 }
 
 export { Radio, RADIO_EVENTS };

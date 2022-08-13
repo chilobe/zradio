@@ -1,12 +1,11 @@
 import { Spinner, Button, Card } from 'react-bootstrap';
 import { Fragment, useEffect, useState, useCallback, useLayoutEffect } from 'react';
-import RadioStations from '../data/RadioStations';
 import { RADIO_EVENTS, Radio } from '../radio/Radio';
 import {
     MdUndo,
     MdRedo,
     MdOutlinePlayArrow,
-    MdOutlinePause,
+    MdOutlineStop,
     MdOutlineHeadphones,
     MdError
 } from 'react-icons/md';
@@ -16,33 +15,68 @@ const LandingPage = () => {
     const [radio, setRadio] = useState(null);
     const [playing, setPlaying] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [radioStation, setRadioStation] = useState(null);
+    const [currentStationIndex, setCurrentStationIndex] = useState(null);
+    const [currentStation, setCurrentStation] = useState(null);
     const [mediaSessionEnabled, setMediaSessionEnabled] = useState(false);
     const [appLoading, setAppLoading] = useState(true);
+    const [stations, setStations] = useState([]);
+    const [stationErrorIndexes, setStationErrorIndexes] = useState([]);
 
     const handleLoadErrorEvent = useCallback(() => {
         setLoading(false);
         setPlaying(false);
-        setRadioStation({ ...radioStation, error: true });
-    }, [radioStation]);
+        if (stationErrorIndexes.length > 0) {
+            const updatedArr = [...stationErrorIndexes];
+            updatedArr[currentStationIndex] = true;
+            setStationErrorIndexes(updatedArr);
+        }
+    }, [currentStationIndex, stationErrorIndexes]);
 
     const handleStationChanged = useCallback(() => {
         setPlaying(false);
         setLoading(true);
-        setRadioStation(radio.getCurrentStation());
-    }, [radio]);
+        setCurrentStationIndex(radio.getCurrentStationIndex());
+        setCurrentStation(stations[radio.getCurrentStationIndex()]);
+    }, [radio, stations]);
+
+    const handlePlayEvent = useCallback(() => {
+        setLoading(false);
+        setPlaying(true);
+
+        if (stationErrorIndexes.length > 0 && stationErrorIndexes[currentStationIndex]) {
+            const updatedArr = [...stationErrorIndexes];
+            updatedArr[currentStationIndex] = false;
+            setStationErrorIndexes(updatedArr);
+        }
+    }, [currentStationIndex, stationErrorIndexes]);
 
     useLayoutEffect(() => {
         const currentStationElement = document.querySelector('.current-station');
         if (currentStationElement) {
             currentStationElement.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [radioStation]);
+    }, [currentStationIndex]);
+
+    useEffect(() => {
+        if (radio) {
+            setStations(radio.getStations());
+            setCurrentStationIndex(radio.getCurrentStationIndex());
+
+            const a = new Array(radio.getStations().length);
+            for (let i = 0; i < a.length; i++) a[i] = false;
+            setStationErrorIndexes(a);
+        }
+    }, [radio]);
+
+    useEffect(() => {
+        if (stations && stations.length > 0) {
+            setCurrentStation(stations[radio.getCurrentStationIndex()]);
+        }
+    }, [stations]);
 
 
     useEffect(() => {
-        setRadioStation(RadioStations[0]);
-        setRadio(new Radio(RadioStations));
+        setRadio(new Radio());
 
         const handleMuteEvent = () => {
             setPlaying(false);
@@ -53,25 +87,26 @@ const LandingPage = () => {
             setPlaying(true);
         };
 
-        const handlePlayEvent = () => {
-            setLoading(false);
-            setPlaying(true);
-        }
-
         const handleAppLoadedEvent = () => {
             setAppLoading(false);
+        }
+
+        const handleStoppedEvent = () => {
+            setPlaying(false);
         }
 
         window.addEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
         window.addEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
         window.addEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
         window.addEventListener(RADIO_EVENTS.APP_LOADED, handleAppLoadedEvent);
+        window.addEventListener(RADIO_EVENTS.STOPPED, handleStoppedEvent);
 
         return () => {
             window.removeEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
             window.removeEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
             window.removeEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
             window.removeEventListener(RADIO_EVENTS.APP_LOADED, handleAppLoadedEvent);
+            window.removeEventListener(RADIO_EVENTS.STOPPED, handleStoppedEvent);
         }
     }, []);
 
@@ -87,9 +122,9 @@ const LandingPage = () => {
 
     const setupMediaSession = () => {
         //this is a hack to allow mediasession to work better with ios.
-        if (!mediaSessionEnabled && radioStation) {
+        if (!mediaSessionEnabled && currentStationIndex) {
             navigator.mediaSession.metadata = new window.MediaMetadata({
-                title: radioStation.name,
+                title: stations[currentStationIndex].name,
                 album: 'ZRadio',
                 artwork: [
                     { src: 'https://dummyimage.com/96x96', sizes: '96x96', type: 'image/png' },
@@ -110,65 +145,57 @@ const LandingPage = () => {
         }
     }
 
-    const handlePlayPauseBtnClick = () => {
-        setupMediaSession();
+    const handlePlayStopBtnClick = () => {
+        //setupMediaSession();
         if (radio) {
             if (radio.isPlaying()) {
-                if (radio.isMuted()) {
-                    radio.unMute();
-                }
-                else {
-                    radio.mute();
-                }
+                radio.stop();
             }
             else {
                 setLoading(true);
                 setPlaying(false);
-                radio.playStation(radioStation);
+                radio.play(currentStationIndex); //TODO check that currentstationindex is initially set
             }
         }
     }
 
-    const handleStationIconClick = (rs) => {
-        setRadioStation(rs);
-        setupMediaSession();
+    const handleStationIconClick = (index) => {
+        //setupMediaSession();
         if (radio) {
             setLoading(true);
             setPlaying(false);
-            radio.playStation(rs);
+            radio.play(index);
         }
     }
 
-    const getRadioStationClassNames = (rs) => {
+    const getRadioStationClassNames = (index) => {
         let className = "shadow ";
-        if (radioStation && rs.id === radioStation.id) {
+        if (currentStationIndex === index) {
             className = className + "current-station ";
-            if (radioStation.error) {
+            if (stationErrorIndexes && stationErrorIndexes[index]) {
                 className = className + "station-error";
             }
         }
         return className;
     };
-
     return <>
         <div className="media-player-container">
             <div className="media-header">
                 {loading && <>  <Spinner animation="border" role="status" />&nbsp; </>}
-                <span>{appLoading ? 'Loading...' : (radioStation && radioStation.name)}</span>
+                <span>{appLoading ? 'Loading...' : (currentStation && currentStation.name)}</span>
             </div>
 
             <div className="media-content">
-                {RadioStations.map((rs, index) => {
+                {stations.map((rs, index) => {
                     return <Card
-                        key={index} className={getRadioStationClassNames(rs)}
-                        onClick={() => handleStationIconClick(rs)}
+                        key={index} className={getRadioStationClassNames(index)}
+                        onClick={() => handleStationIconClick(index)}
                     >
                         <Card.Header className="text-center">
                             <span>{rs.name}</span>
-                            {((radioStation && rs.id === radioStation.id) && playing) && <>&nbsp;<MdOutlineHeadphones /> </>}
-                            {((radioStation && rs.id === radioStation.id) && loading) && <>&nbsp;<Spinner animation="border" role="status" /> </>}
-                            {((radioStation && rs.id === radioStation.id) && radioStation.error) && <>&nbsp;<MdError /> </>}
-
+                            {((index === currentStationIndex) && playing) && <>&nbsp;<MdOutlineHeadphones /> </>}
+                            {((index === currentStationIndex) && loading) && <>&nbsp;<Spinner animation="border" role="status" /> </>}
+                            {(stationErrorIndexes && stationErrorIndexes[index]) && <>&nbsp;<MdError /> </>}
                         </Card.Header>
                         <Card.Body>
                             <Card.Img src={rs.icon} />
@@ -193,8 +220,8 @@ const LandingPage = () => {
                         <span className="visually-hidden">Loading...</span>
                     </Spinner> :
                         <Button className="media-control" variant="dark"
-                            onClick={handlePlayPauseBtnClick}>
-                            {playing && <MdOutlinePause />}
+                            onClick={handlePlayStopBtnClick}>
+                            {playing && <MdOutlineStop />}
                             {!playing && <MdOutlinePlayArrow />}
                         </Button>
                     }
