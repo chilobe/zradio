@@ -9,7 +9,6 @@ import {
     MdOutlineHeadphones,
     MdError
 } from 'react-icons/md';
-import silence from '../data/sounds/5-seconds-of-silence.mp3';
 
 const LandingPage = () => {
     const [radio, setRadio] = useState(null);
@@ -17,7 +16,6 @@ const LandingPage = () => {
     const [loading, setLoading] = useState(false);
     const [currentStationIndex, setCurrentStationIndex] = useState(null);
     const [currentStation, setCurrentStation] = useState(null);
-    const [mediaSessionEnabled, setMediaSessionEnabled] = useState(false);
     const [appLoading, setAppLoading] = useState(true);
     const [stations, setStations] = useState([]);
     const [stationErrorIndexes, setStationErrorIndexes] = useState([]);
@@ -95,11 +93,16 @@ const LandingPage = () => {
             setPlaying(false);
         }
 
+        const handlePausedEvent = () => {
+            setPlaying(false);
+        }
+
         window.addEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
         window.addEventListener(RADIO_EVENTS.UNMUTED, handleUnmuteEvent);
         window.addEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
         window.addEventListener(RADIO_EVENTS.APP_LOADED, handleAppLoadedEvent);
         window.addEventListener(RADIO_EVENTS.STOPPED, handleStoppedEvent);
+        window.addEventListener(RADIO_EVENTS.PAUSED, handlePausedEvent);
 
         return () => {
             window.removeEventListener(RADIO_EVENTS.MUTED, handleMuteEvent);
@@ -107,6 +110,7 @@ const LandingPage = () => {
             window.removeEventListener(RADIO_EVENTS.PLAYING, handlePlayEvent);
             window.removeEventListener(RADIO_EVENTS.APP_LOADED, handleAppLoadedEvent);
             window.removeEventListener(RADIO_EVENTS.STOPPED, handleStoppedEvent);
+            window.removeEventListener(RADIO_EVENTS.PAUSED, handlePausedEvent);
         }
     }, []);
 
@@ -120,36 +124,11 @@ const LandingPage = () => {
         return () => window.removeEventListener(RADIO_EVENTS.STATION_CHANGED, handleStationChanged);
     }, [handleStationChanged]);
 
-    const setupMediaSession = () => {
-        //this is a hack to allow mediasession to work better with ios.
-        if (!mediaSessionEnabled && currentStationIndex) {
-            navigator.mediaSession.metadata = new window.MediaMetadata({
-                title: stations[currentStationIndex].name,
-                album: 'ZRadio',
-                artwork: [
-                    { src: 'https://dummyimage.com/96x96', sizes: '96x96', type: 'image/png' },
-                    { src: 'https://dummyimage.com/128x128', sizes: '128x128', type: 'image/png' },
-                    { src: 'https://dummyimage.com/192x192', sizes: '192x192', type: 'image/png' },
-                    { src: 'https://dummyimage.com/256x256', sizes: '256x256', type: 'image/png' },
-                    { src: 'https://dummyimage.com/384x384', sizes: '384x384', type: 'image/png' },
-                    { src: 'https://dummyimage.com/512x512', sizes: '512x512', type: 'image/png' },
-                ]
-            });
-
-            document.getElementById('silentSound').play();
-
-            document.getElementById('silentSound').pause();
-            navigator.mediaSession.playbackState = "paused";
-
-            setMediaSessionEnabled(true);
-        }
-    }
 
     const handlePlayStopBtnClick = () => {
-        //setupMediaSession();
         if (radio) {
             if (radio.isPlaying()) {
-                radio.stop();
+                radio.handleStopAction();
             }
             else {
                 setLoading(true);
@@ -160,7 +139,6 @@ const LandingPage = () => {
     }
 
     const handleStationIconClick = (index) => {
-        //setupMediaSession();
         if (radio) {
             setLoading(true);
             setPlaying(false);
@@ -205,9 +183,6 @@ const LandingPage = () => {
             </div>
 
             <div className="media-controls-container">
-                <audio src={silence} id="silentSound" loop>
-                    audio unspported
-                </audio>
                 <Button className="media-control"
                     variant="dark"
                     onClick={() => radio.handlePrevAction()}>

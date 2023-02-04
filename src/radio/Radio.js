@@ -2,6 +2,7 @@ import { Howl, Howler } from 'howler';
 import errorAudio from '../data/sounds/error.mp3';
 import calmAlarmAudio from '../data/sounds/calmAlarm.mp3';
 import stations from '../data/RadioStations';
+
 /*TODO 
 1 ON ERROR, SEND OUT AN EMAIL WITH DETAIL
 */
@@ -23,13 +24,21 @@ function Radio() {
         LOAD_ERROR: "LOAD ERROR"
     }
 
-    let actionHandlersSet = false;
     let currentStationIndex = 0;
 
-    const getStations = () => stations;
-    this.getStations = getStations;
+    let requestStopLoadingSound = false;
+
+    const getCurrentStationIndex = () => currentStationIndex;
+    this.getCurrentStationIndex = getCurrentStationIndex;
 
     const loadingSound = new Howl({ src: [calmAlarmAudio], loop: true, preload: true });
+
+    loadingSound.on('play', () => {
+        if (requestStopLoadingSound) {
+            loadingSound.stop();
+            requestStopLoadingSound = false;
+        }
+    });
 
     const playLoadingSound = () => {
         if (!isPlaying() && !loadingSound.playing()) {
@@ -38,10 +47,11 @@ function Radio() {
     }
 
     const stopLoadingSound = () => {
-        if (loadingSound.playing()) {
-            loadingSound.stop();
-        }
+        requestStopLoadingSound = true;
     }
+
+    const getStations = () => stations;
+    this.getStations = getStations;
 
     window.onload = function () {
         window.dispatchEvent(new Event(RADIO_EVENTS.APP_LOADED));
@@ -64,19 +74,15 @@ function Radio() {
     };
     this.isPlaying = isPlaying;
 
-    const getCurrentStationIndex = () => currentStationIndex;
-    this.getCurrentStationIndex = getCurrentStationIndex;
 
     const setupSoundEventListeners = (sound) => {
         withTryCatch(() => {
             sound.on('pause', () => {
                 window.dispatchEvent(new Event(RADIO_EVENTS.PAUSED));
-                navigator.mediaSession.playbackState = "paused";
             });
 
             sound.on('stop', () => {
                 window.dispatchEvent(new Event(RADIO_EVENTS.STOPPED));
-                navigator.mediaSession.playbackState = "paused";
             });
 
             sound.on('play', () => {
@@ -84,25 +90,13 @@ function Radio() {
                     stopLoadingSound();
                 }
                 window.dispatchEvent(new Event(RADIO_EVENTS.PLAYING));
-                navigator.mediaSession.playbackState = "playing";
             });
 
-
-
-            sound.on('loaderror', () => {
-                console.debug("cwm load error!");
+            sound.on('loaderror', (e) => {
                 stations[currentStationIndex].howl = null;
                 window.dispatchEvent(new Event(RADIO_EVENTS.LOAD_ERROR));
                 stopLoadingSound();
                 playErrorSound();
-            });
-
-            sound.on('load', () => {
-                console.debug("cwm load event!");
-            });
-
-            sound.on('rate', () => {
-                console.debug("cwm unlock event!");
             });
 
             sound.on('playerror', () => {
@@ -111,45 +105,24 @@ function Radio() {
         }, "Error in setupSoundEventListeners()");
     };
 
-    const playSound = async (sound) => {
-        playLoadingSound();
-        setupSoundEventListeners(sound);
 
-        return withTryCatch(() => {
-            sound.play();
-
-            return new Promise((resolve, reject) => {
-                sound.once('play', () => {
-
-                    navigator.mediaSession.setPositionState({
-                        duration: 999999,
-                        playbackRate: 1,
-                        position: 80
-                    });
-                    sound.mute(false);
-                    navigator.mediaSession.playbackState = "playing";
-
-                    resolve(true);
-                });
-                sound.once('loaderror', (id, error) => {
-                    reject(ERRORS.LOAD_ERROR, error);
-                });
-            })
-        }, "Error in playSound()")
-    };
-
-
-    const stop = () => {
+    const handleStopAction = () => {
         withTryCatch(() => {
-            stations[currentStationIndex].howl.mute()
             if (stations[currentStationIndex] && stations[currentStationIndex].howl) {
                 stations[currentStationIndex].howl.stop();
             }
-        }, "Error in stop()");
+        }, "Error in handleStopAction()");
     }
-    this.stop = stop;
+    this.handleStopAction = handleStopAction;
 
-
+    const handlePauseAction = () => {
+        withTryCatch(() => {
+            if (stations[currentStationIndex] && stations[currentStationIndex].howl) {
+                stations[currentStationIndex].howl.pause();
+            }
+        }, "Error in handlePauseAction()");
+    }
+    this.handleStopAction = handlePauseAction;
 
     const handlePlayAction = () => {
         play();
@@ -181,25 +154,22 @@ function Radio() {
     };
     this.handlePrevAction = handlePrevAction;
 
-    const setActionHandlers = () => {
-        if (!actionHandlersSet) {
-            const actionHandlers = [
-                ['play', () => handlePlayAction()],
-                ['pause', () => console.debug("cwm paused!")],
-                ['previoustrack', () => handlePrevAction()],
-                ['nexttrack', () => handleNextAction()],
-                ['stop', () => console.debug("cwm stop")],
-            ];
+    const playSound = async (sound) => {
+        playLoadingSound();
+        setupSoundEventListeners(sound);
 
-            for (const [action, handler] of actionHandlers) {
-                try {
-                    navigator.mediaSession.setActionHandler(action, handler);
-                } catch (error) {
-                    console.log(`The media session action "${action}" is not supported yet.`);
-                }
-            }
-            actionHandlersSet = true;
-        }
+        return withTryCatch(() => {
+            sound.play();
+
+            return new Promise((resolve, reject) => {
+                sound.once('play', () => {
+                    resolve(true);
+                });
+                sound.once('loaderror', (id, error) => {
+                    reject(ERRORS.LOAD_ERROR, error);
+                });
+            })
+        }, "Error in playSound()")
     };
 
     const errorSound = new Howl({ src: [errorAudio], preload: true });
@@ -214,18 +184,12 @@ function Radio() {
 
         const oldStationIndex = currentStationIndex;
 
-        console.debug("cwm oldStationIndex-", oldStationIndex, "t-", typeof index);
-
         currentStationIndex = (typeof index === 'number') ? index : currentStationIndex;
-
-        console.debug("cwm currentStationIndex-", currentStationIndex);
-
 
         const radioStation = stations[currentStationIndex];
 
         if (oldStationIndex !== currentStationIndex) {
             window.dispatchEvent(new Event(RADIO_EVENTS.STATION_CHANGED));
-            console.debug("station changed!");
         }
 
         let sound;
@@ -240,18 +204,8 @@ function Radio() {
         }
 
         return withTryCatch(() => {
-            document.title = document.title + ' ' + radioStation.name;
-            navigator.mediaSession.metadata = new window.MediaMetadata({
-                title: radioStation.name,
-                album: 'ZRadio 2',
-                artwork: [{ src: radioStation.icon, sizes: '384x384', type: 'image/png' },
-                ]
-            });
-
-            setActionHandlers();
             return playSound(sound);
-
-        }, "Error in play()");
+        }, "Error in playSound()");
     }
     this.play = play;
 }
